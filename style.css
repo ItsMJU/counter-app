@@ -92,8 +92,8 @@ body {
 }
 
 .btn-increment {
-  width: 5rem;
-  height: 5rem;
+  width: 4.5rem;
+  height: 4.5rem;
   background-color: var(--color-increment);
   color: #fff;
 }
@@ -104,8 +104,8 @@ body {
 }
 
 .btn-decrement {
-  width: 4.25rem;
-  height: 4.25rem;
+  width: 4.5rem;
+  height: 4.5rem;
   font-size: 2rem;
   background-color: var(--color-decrement);
   color: #fff;
