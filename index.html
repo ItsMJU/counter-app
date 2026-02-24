@@ -8,6 +8,7 @@
   </head>
   <body>
     <canvas id="sky-canvas"></canvas>
+
     <div class="app">
       <header>
         <h1 class="app-title">Counter</h1>
@@ -18,7 +19,31 @@
 
         <div class="controls">
           <button class="btn btn-decrement" id="btn-decrement">−</button>
-          <button class="btn btn-reset" id="btn-reset">Reset</button>
+
+          <div class="shop-wrapper">
+            <div class="shop-menu" id="shop-menu">
+              <p class="shop-title">Shop</p>
+              <div class="shop-item">
+                <div class="shop-item-header">
+                  <span class="shop-item-icon">★</span>
+                  <div class="shop-item-info">
+                    <span class="shop-item-name">Autoclicker</span>
+                    <span class="shop-item-desc">+1 per second · stacks per purchase</span>
+                  </div>
+                  <span class="shop-item-owned" id="autoclicker-owned">0 owned</span>
+                </div>
+                <div class="shop-item-footer">
+                  <span class="shop-item-cost">✦ 100</span>
+                  <button class="shop-buy-btn" id="btn-buy-autoclicker">Purchase</button>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn btn-menu" id="btn-menu" aria-label="Open shop">
+              <span class="menu-arrow">▾</span>
+            </button>
+          </div>
+
           <button class="btn btn-increment" id="btn-increment">+</button>
         </div>
       </main>

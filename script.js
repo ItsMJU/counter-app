@@ -1,13 +1,19 @@
 // ── Counter ──────────────────────────────────────────────────────────────
-const counterEl = document.getElementById('counter');
-const btnIncrement = document.getElementById('btn-increment');
-const btnDecrement = document.getElementById('btn-decrement');
-const btnReset = document.getElementById('btn-reset');
+const counterEl       = document.getElementById('counter');
+const btnIncrement    = document.getElementById('btn-increment');
+const btnDecrement    = document.getElementById('btn-decrement');
+const btnMenu         = document.getElementById('btn-menu');
+const shopMenu        = document.getElementById('shop-menu');
+const btnBuyAuto      = document.getElementById('btn-buy-autoclicker');
+const autoclickerOwned = document.getElementById('autoclicker-owned');
 
 let count = 0;
+let autoclickerLevel = 0;
 
 function render() {
   counterEl.textContent = count;
+  // Keep buy button gated to current count
+  btnBuyAuto.disabled = count < 100;
 }
 
 function triggerBounce() {
@@ -16,6 +22,7 @@ function triggerBounce() {
   counterEl.classList.add('bounce');
 }
 
+// ── Button Handlers ───────────────────────────────────────────────────────
 btnIncrement.addEventListener('click', () => {
   count += 1;
   render();
@@ -33,14 +40,39 @@ btnDecrement.addEventListener('click', () => {
   }
 });
 
-btnReset.addEventListener('click', () => {
-  if (count !== 0) {
-    count = 0;
-    render();
-    triggerBounce();
-    triggerWindowFlicker();
+// ── Shop Menu Toggle ──────────────────────────────────────────────────────
+btnMenu.addEventListener('click', () => {
+  const isOpen = shopMenu.classList.toggle('open');
+  btnMenu.classList.toggle('open', isOpen);
+});
+
+// Close when clicking anywhere outside the shop wrapper
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.shop-wrapper')) {
+    shopMenu.classList.remove('open');
+    btnMenu.classList.remove('open');
   }
 });
+
+// ── Autoclicker Purchase ──────────────────────────────────────────────────
+btnBuyAuto.addEventListener('click', () => {
+  if (count < 100) return;
+  count -= 100;
+  autoclickerLevel += 1;
+  autoclickerOwned.textContent = `${autoclickerLevel} owned`;
+  render();
+  // Burst of window flickers to celebrate the purchase
+  for (let i = 0; i < 5; i++) triggerWindowFlicker();
+});
+
+// Autoclicker tick: +autoclickerLevel every second
+setInterval(() => {
+  if (autoclickerLevel === 0) return;
+  count += autoclickerLevel;
+  render();
+  triggerWindowFlicker();
+  checkMilestone(count);
+}, 1000);
 
 // ── Night Sky Canvas ─────────────────────────────────────────────────────
 const canvas = document.getElementById('sky-canvas');
@@ -79,7 +111,6 @@ function generateStars() {
   const W = canvas.width;
   const H = canvas.height;
 
-  // Background stars
   for (let i = 0; i < 280; i++) {
     stars.push({
       x: Math.random() * W,
@@ -92,7 +123,6 @@ function generateStars() {
     });
   }
 
-  // Milky Way river — dense diagonal band of faint stars
   for (let i = 0; i < 650; i++) {
     const t = Math.random();
     const bx = (0.22 + t * 0.56) * W;
@@ -180,7 +210,7 @@ function checkMilestone(value) {
 function drawKeepItUp() {
   if (!keepItUpState) return;
   const elapsed = frame - keepItUpState.startFrame;
-  const DURATION = 180; // 3 s at 60 fps
+  const DURATION = 180;
   if (elapsed >= DURATION) { keepItUpState = null; return; }
 
   const progress = elapsed / DURATION;
@@ -191,29 +221,25 @@ function drawKeepItUp() {
   ctx.save();
   ctx.globalAlpha = alpha;
   ctx.translate(50, 185);
-  ctx.rotate(-Math.PI / 5.5); // ~-33° diagonal
+  ctx.rotate(-Math.PI / 5.5);
 
   const text = 'Keep it up!';
   ctx.font = 'bold 2.6rem "Segoe UI", system-ui, sans-serif';
   ctx.textBaseline = 'middle';
 
-  // Outer nebula glow
   ctx.shadowColor = 'rgba(160, 210, 255, 1)';
   ctx.shadowBlur = 38;
   ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.fillText(text, 0, 0);
 
-  // Mid glow
   ctx.shadowBlur = 18;
   ctx.fillStyle = 'rgba(220, 240, 255, 0.5)';
   ctx.fillText(text, 0, 0);
 
-  // Sharp core
   ctx.shadowBlur = 5;
   ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
   ctx.fillText(text, 0, 0);
 
-  // Twinkling sparkle stars around the letters
   ctx.shadowBlur = 0;
   ctx.shadowColor = 'rgba(0, 0, 0, 0)';
   for (const sp of keepItUpState.sparkles) {
@@ -236,7 +262,6 @@ function draw() {
   ctx.fillStyle = '#050810';
   ctx.fillRect(0, 0, W, H);
 
-  // Milky Way glow band
   const mwGrad = ctx.createLinearGradient(W * 0.18, 0, W * 0.78, H * 0.82);
   mwGrad.addColorStop(0,   'rgba(70, 90, 160, 0)');
   mwGrad.addColorStop(0.5, 'rgba(70, 90, 160, 0.075)');
@@ -244,7 +269,6 @@ function draw() {
   ctx.fillStyle = mwGrad;
   ctx.fillRect(0, 0, W, H);
 
-  // Moon
   const mx = W * 0.80;
   const my = H * 0.13;
   const mr = Math.min(W, H) * 0.038;
@@ -266,7 +290,6 @@ function draw() {
   ctx.arc(mx, my, mr, 0, Math.PI * 2);
   ctx.fill();
 
-  // Stars
   for (const s of stars) {
     s.phase += s.speed;
     const a = s.alpha + Math.sin(s.phase) * 0.12;
@@ -278,14 +301,12 @@ function draw() {
     ctx.fill();
   }
 
-  // City light-pollution glow
   const glowGrad = ctx.createLinearGradient(0, H - 240, 0, H);
   glowGrad.addColorStop(0, 'rgba(255, 120, 30, 0)');
   glowGrad.addColorStop(1, 'rgba(255, 100, 20, 0.13)');
   ctx.fillStyle = glowGrad;
   ctx.fillRect(0, H - 240, W, 240);
 
-  // City buildings
   ctx.fillStyle = '#060c16';
   for (const r of cityRects) {
     ctx.fillRect(r.x, r.y, r.w, r.h);
@@ -295,7 +316,6 @@ function draw() {
     }
   }
 
-  // Lit windows
   frame++;
   for (const w of cityWindows) {
     if (w.triggered) {
@@ -321,9 +341,7 @@ function draw() {
     ctx.fillRect(w.x, w.y, 5, 7);
   }
 
-  // "Keep it up!" star text overlay
   drawKeepItUp();
-
   requestAnimationFrame(draw);
 }
 
