@@ -1,19 +1,26 @@
 // ── Counter ──────────────────────────────────────────────────────────────
-const counterEl       = document.getElementById('counter');
-const btnIncrement    = document.getElementById('btn-increment');
-const btnDecrement    = document.getElementById('btn-decrement');
-const btnMenu         = document.getElementById('btn-menu');
-const shopMenu        = document.getElementById('shop-menu');
-const btnBuyAuto      = document.getElementById('btn-buy-autoclicker');
+const counterEl        = document.getElementById('counter');
+const btnIncrement     = document.getElementById('btn-increment');
+const btnMenu          = document.getElementById('btn-menu');
+const shopMenu         = document.getElementById('shop-menu');
+const btnBuyAuto       = document.getElementById('btn-buy-autoclicker');
 const autoclickerOwned = document.getElementById('autoclicker-owned');
+const btnStats         = document.getElementById('btn-stats');
+const statsMenu        = document.getElementById('stats-menu');
+const statTotalClicks  = document.getElementById('stat-total-clicks');
+const statCps          = document.getElementById('stat-cps');
+const statAutoOwned    = document.getElementById('stat-auto-owned');
+const statAutoCps      = document.getElementById('stat-auto-cps');
+const statLitWindows   = document.getElementById('stat-lit-windows');
 
-let count = 0;
+let count            = 0;
+let totalClicks      = 0;
 let autoclickerLevel = 0;
 
 function render() {
   counterEl.textContent = count;
-  // Keep buy button gated to current count
-  btnBuyAuto.disabled = count < 100;
+  btnBuyAuto.disabled   = count < 100;
+  updateStats();
 }
 
 function triggerBounce() {
@@ -22,22 +29,22 @@ function triggerBounce() {
   counterEl.classList.add('bounce');
 }
 
-// ── Button Handlers ───────────────────────────────────────────────────────
+function updateStats() {
+  statTotalClicks.textContent = totalClicks.toLocaleString();
+  statCps.textContent         = autoclickerLevel;
+  statAutoOwned.textContent   = autoclickerLevel;
+  statAutoCps.textContent     = `+${autoclickerLevel} / sec`;
+  statLitWindows.textContent  = cityWindows.length;
+}
+
+// ── Increment ─────────────────────────────────────────────────────────────
 btnIncrement.addEventListener('click', () => {
-  count += 1;
+  count       += 1;
+  totalClicks += 1;
   render();
   triggerBounce();
   triggerWindowFlicker();
   checkMilestone(count);
-});
-
-btnDecrement.addEventListener('click', () => {
-  if (count > 0) {
-    count -= 1;
-    render();
-    triggerBounce();
-    triggerWindowFlicker();
-  }
 });
 
 // ── Shop Menu Toggle ──────────────────────────────────────────────────────
@@ -46,39 +53,49 @@ btnMenu.addEventListener('click', () => {
   btnMenu.classList.toggle('open', isOpen);
 });
 
-// Close when clicking anywhere outside the shop wrapper
+// ── Stats Menu Toggle ─────────────────────────────────────────────────────
+btnStats.addEventListener('click', () => {
+  const isOpen = statsMenu.classList.toggle('open');
+  btnStats.classList.toggle('open', isOpen);
+  if (isOpen) updateStats(); // refresh on open
+});
+
+// Close panels when clicking outside their wrapper
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.shop-wrapper')) {
     shopMenu.classList.remove('open');
     btnMenu.classList.remove('open');
+  }
+  if (!e.target.closest('.stats-wrapper')) {
+    statsMenu.classList.remove('open');
+    btnStats.classList.remove('open');
   }
 });
 
 // ── Autoclicker Purchase ──────────────────────────────────────────────────
 btnBuyAuto.addEventListener('click', () => {
   if (count < 100) return;
-  count -= 100;
+  count            -= 100;
   autoclickerLevel += 1;
   autoclickerOwned.textContent = `${autoclickerLevel} owned`;
   render();
-  // Burst of window flickers to celebrate the purchase
   for (let i = 0; i < 5; i++) triggerWindowFlicker();
 });
 
-// Autoclicker tick: +autoclickerLevel every second
+// Autoclicker tick: fires every second, increments by level
 setInterval(() => {
   if (autoclickerLevel === 0) return;
   count += autoclickerLevel;
   render();
+  triggerBounce();
   triggerWindowFlicker();
   checkMilestone(count);
 }, 1000);
 
 // ── Night Sky Canvas ─────────────────────────────────────────────────────
 const canvas = document.getElementById('sky-canvas');
-const ctx = canvas.getContext('2d');
+const ctx    = canvas.getContext('2d');
 
-// Building definitions: [x fraction, width fraction, height px]
 const CITY_DEFS = [
   [0.000, 0.045, 45], [0.050, 0.030, 68], [0.082, 0.038, 40],
   [0.122, 0.025, 82], [0.150, 0.035, 55], [0.188, 0.028, 72],
@@ -93,14 +110,14 @@ const CITY_DEFS = [
   [0.960, 0.040, 62],
 ];
 
-let stars = [];
-let cityRects = [];
+let stars       = [];
+let cityRects   = [];
 let cityWindows = [];
-let frame = 0;
+let frame       = 0;
 let keepItUpState = null;
 
 function resize() {
-  canvas.width = window.innerWidth;
+  canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
   buildCity();
 }
@@ -108,8 +125,7 @@ function resize() {
 // ── Stars & Milky Way ────────────────────────────────────────────────────
 function generateStars() {
   stars = [];
-  const W = canvas.width;
-  const H = canvas.height;
+  const W = canvas.width, H = canvas.height;
 
   for (let i = 0; i < 280; i++) {
     stars.push({
@@ -124,9 +140,9 @@ function generateStars() {
   }
 
   for (let i = 0; i < 650; i++) {
-    const t = Math.random();
-    const bx = (0.22 + t * 0.56) * W;
-    const by = t * H * 0.82;
+    const t    = Math.random();
+    const bx   = (0.22 + t * 0.56) * W;
+    const by   = t * H * 0.82;
     const perp = (Math.random() - 0.5) * W * 0.16;
     stars.push({
       x: bx + perp * 0.45,
@@ -142,8 +158,7 @@ function generateStars() {
 
 // ── Cityscape ────────────────────────────────────────────────────────────
 function buildCity() {
-  const W = canvas.width;
-  const H = canvas.height;
+  const W = canvas.width, H = canvas.height;
 
   cityRects = CITY_DEFS.map(([xf, wf, h]) => ({
     x: Math.round(xf * W),
@@ -154,9 +169,7 @@ function buildCity() {
   }));
 
   let tallest = cityRects[0];
-  for (const r of cityRects) {
-    if (r.h > tallest.h) tallest = r;
-  }
+  for (const r of cityRects) { if (r.h > tallest.h) tallest = r; }
   tallest.hasAntenna = true;
 
   cityWindows = [];
@@ -179,15 +192,17 @@ function buildCity() {
       }
     }
   }
+
+  // Sync lit-window count if stats panel already rendered
+  statLitWindows.textContent = cityWindows.length;
 }
 
-// ── Window Flash on Button Press ─────────────────────────────────────────
+// ── Window Flash ─────────────────────────────────────────────────────────
 function triggerWindowFlicker() {
   if (cityWindows.length === 0) return;
-  const idx = Math.floor(Math.random() * cityWindows.length);
-  const w = cityWindows[idx];
-  w.triggered = true;
-  w.triggeredFrame = frame;
+  const w = cityWindows[Math.floor(Math.random() * cityWindows.length)];
+  w.triggered        = true;
+  w.triggeredFrame   = frame;
   w.triggeredDuration = 18 + Math.floor(Math.random() * 14);
 }
 
@@ -214,8 +229,8 @@ function drawKeepItUp() {
   if (elapsed >= DURATION) { keepItUpState = null; return; }
 
   const progress = elapsed / DURATION;
-  const alpha = progress < 0.1  ? progress / 0.1
-              : progress > 0.8  ? (1 - progress) / 0.2
+  const alpha = progress < 0.1 ? progress / 0.1
+              : progress > 0.8 ? (1 - progress) / 0.2
               : 1;
 
   ctx.save();
@@ -224,24 +239,24 @@ function drawKeepItUp() {
   ctx.rotate(-Math.PI / 5.5);
 
   const text = 'Keep it up!';
-  ctx.font = 'bold 2.6rem "Segoe UI", system-ui, sans-serif';
+  ctx.font         = 'bold 2.6rem "Segoe UI", system-ui, sans-serif';
   ctx.textBaseline = 'middle';
 
   ctx.shadowColor = 'rgba(160, 210, 255, 1)';
-  ctx.shadowBlur = 38;
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+  ctx.shadowBlur  = 38;
+  ctx.fillStyle   = 'rgba(255, 255, 255, 0.15)';
   ctx.fillText(text, 0, 0);
 
   ctx.shadowBlur = 18;
-  ctx.fillStyle = 'rgba(220, 240, 255, 0.5)';
+  ctx.fillStyle  = 'rgba(220, 240, 255, 0.5)';
   ctx.fillText(text, 0, 0);
 
   ctx.shadowBlur = 5;
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+  ctx.fillStyle  = 'rgba(255, 255, 255, 0.95)';
   ctx.fillText(text, 0, 0);
 
-  ctx.shadowBlur = 0;
-  ctx.shadowColor = 'rgba(0, 0, 0, 0)';
+  ctx.shadowBlur  = 0;
+  ctx.shadowColor = 'rgba(0,0,0,0)';
   for (const sp of keepItUpState.sparkles) {
     sp.phase += sp.speed;
     const a = 0.3 + Math.abs(Math.sin(sp.phase)) * 0.7;
@@ -256,8 +271,7 @@ function drawKeepItUp() {
 
 // ── Draw Loop ────────────────────────────────────────────────────────────
 function draw() {
-  const W = canvas.width;
-  const H = canvas.height;
+  const W = canvas.width, H = canvas.height;
 
   ctx.fillStyle = '#050810';
   ctx.fillRect(0, 0, W, H);
@@ -269,8 +283,7 @@ function draw() {
   ctx.fillStyle = mwGrad;
   ctx.fillRect(0, 0, W, H);
 
-  const mx = W * 0.80;
-  const my = H * 0.13;
+  const mx = W * 0.80, my = H * 0.13;
   const mr = Math.min(W, H) * 0.038;
 
   const moonGlow = ctx.createRadialGradient(mx, my, mr * 0.4, mx, my, mr * 3.5);
@@ -324,8 +337,8 @@ function draw() {
         const t = elapsed / w.triggeredDuration;
         ctx.save();
         ctx.shadowColor = 'rgba(255, 255, 180, 0.9)';
-        ctx.shadowBlur = 10;
-        ctx.fillStyle = `rgba(255, 255, 200, ${1.0 - t * 0.3})`;
+        ctx.shadowBlur  = 10;
+        ctx.fillStyle   = `rgba(255, 255, 200, ${1.0 - t * 0.3})`;
         ctx.fillRect(w.x, w.y, 5, 7);
         ctx.restore();
         continue;
