@@ -18,11 +18,51 @@
         <div class="counter-display" id="counter">0</div>
 
         <div class="controls">
-          <button class="btn btn-decrement" id="btn-decrement">−</button>
 
+          <!-- Stats Menu (left) -->
+          <div class="stats-wrapper">
+            <div class="stats-menu" id="stats-menu">
+              <p class="panel-title">Stats</p>
+
+              <div class="stat-row">
+                <span class="stat-label">Total clicks</span>
+                <span class="stat-value" id="stat-total-clicks">0</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Clicks / sec</span>
+                <span class="stat-value" id="stat-cps">0</span>
+              </div>
+
+              <div class="stat-divider"></div>
+              <p class="stat-section">Owned</p>
+
+              <div class="stat-row">
+                <span class="stat-label">★ Autoclicker</span>
+                <span class="stat-value" id="stat-auto-owned">0</span>
+              </div>
+              <div class="stat-row stat-sub">
+                <span class="stat-label">↳ generating</span>
+                <span class="stat-value stat-green" id="stat-auto-cps">+0 / sec</span>
+              </div>
+
+              <div class="stat-divider"></div>
+              <p class="stat-section">City</p>
+
+              <div class="stat-row">
+                <span class="stat-label">Lit windows</span>
+                <span class="stat-value" id="stat-lit-windows">0</span>
+              </div>
+            </div>
+
+            <button class="btn btn-stats" id="btn-stats" aria-label="Open stats">
+              <span class="panel-arrow">▾</span>
+            </button>
+          </div>
+
+          <!-- Shop Menu (center) -->
           <div class="shop-wrapper">
             <div class="shop-menu" id="shop-menu">
-              <p class="shop-title">Shop</p>
+              <p class="panel-title">Shop</p>
               <div class="shop-item">
                 <div class="shop-item-header">
                   <span class="shop-item-icon">★</span>
@@ -40,11 +80,13 @@
             </div>
 
             <button class="btn btn-menu" id="btn-menu" aria-label="Open shop">
-              <span class="menu-arrow">▾</span>
+              <span class="panel-arrow">▾</span>
             </button>
           </div>
 
+          <!-- Increment -->
           <button class="btn btn-increment" id="btn-increment">+</button>
+
         </div>
       </main>
     </div>

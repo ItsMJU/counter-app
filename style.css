@@ -2,8 +2,6 @@
 :root {
   --color-increment: #22c55e;
   --color-increment-hover: #16a34a;
-  --color-decrement: #ef4444;
-  --color-decrement-hover: #dc2626;
   --font-main: 'Segoe UI', system-ui, sans-serif;
 }
 
@@ -93,7 +91,7 @@ body {
   align-items: center;
 }
 
-/* ── Buttons ───────────────────────────────────────────────── */
+/* ── Base Button ───────────────────────────────────────────── */
 .btn {
   border: none;
   border-radius: 9999px;
@@ -108,6 +106,7 @@ body {
   transform: scale(0.91);
 }
 
+/* ── Increment Button ──────────────────────────────────────── */
 .btn-increment {
   width: 3.7rem;
   height: 3.7rem;
@@ -120,37 +119,25 @@ body {
   box-shadow: 0 5px 18px rgba(34, 197, 94, 0.55);
 }
 
-.btn-decrement {
-  width: 3.7rem;
-  height: 3.7rem;
-  font-size: 1.8rem;
-  background-color: var(--color-decrement);
-  color: #fff;
-}
-
-.btn-decrement:hover {
-  background-color: var(--color-decrement-hover);
-  box-shadow: 0 5px 18px rgba(239, 68, 68, 0.55);
-}
-
-/* ── Shop Wrapper ──────────────────────────────────────────── */
-.shop-wrapper {
-  position: relative;
-}
-
-/* ── Menu Arrow Button ─────────────────────────────────────── */
-.btn-menu {
+/* ── Shared Panel Trigger Button Styles ────────────────────── */
+.btn-menu,
+.btn-stats {
   padding: 0 1.1rem;
   height: 2.4rem;
-  background: rgba(90, 120, 200, 0.2);
-  border: 1px solid rgba(150, 180, 255, 0.22);
-  color: rgba(200, 220, 255, 0.88);
   font-size: 1rem;
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  transition: background 0.15s ease, box-shadow 0.15s ease,
+              border-color 0.15s ease, transform 0.1s ease;
+}
+
+/* Shop button — blue/violet */
+.btn-menu {
+  background: rgba(90, 120, 200, 0.2);
+  border: 1px solid rgba(150, 180, 255, 0.22);
+  color: rgba(200, 220, 255, 0.88);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
 
 .btn-menu:hover {
@@ -159,24 +146,46 @@ body {
   border-color: rgba(180, 205, 255, 0.32);
 }
 
-.menu-arrow {
+/* Stats button — teal/cyan */
+.btn-stats {
+  background: rgba(20, 150, 160, 0.2);
+  border: 1px solid rgba(80, 210, 220, 0.22);
+  color: rgba(150, 230, 235, 0.88);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-stats:hover {
+  background: rgba(30, 175, 185, 0.32);
+  box-shadow: 0 4px 18px rgba(40, 200, 210, 0.28);
+  border-color: rgba(100, 230, 240, 0.32);
+}
+
+/* Arrow icon shared by both panel buttons */
+.panel-arrow {
   display: inline-block;
   transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
   line-height: 1;
   font-size: 0.85rem;
 }
 
-.btn-menu.open .menu-arrow {
+.btn-menu.open .panel-arrow,
+.btn-stats.open .panel-arrow {
   transform: rotate(180deg);
 }
 
-/* ── Shop Menu Panel ───────────────────────────────────────── */
-.shop-menu {
+/* ── Shared Panel Wrapper ──────────────────────────────────── */
+.shop-wrapper,
+.stats-wrapper {
+  position: relative;
+}
+
+/* ── Shared Floating Panel ─────────────────────────────────── */
+.shop-menu,
+.stats-menu {
   position: absolute;
   bottom: calc(100% + 0.9rem);
   left: 50%;
   transform: translateX(-50%) translateY(8px);
-  width: 290px;
   background: rgba(5, 10, 30, 0.78);
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
@@ -190,13 +199,18 @@ body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
 }
 
-.shop-menu.open {
+.shop-menu  { width: 290px; }
+.stats-menu { width: 260px; }
+
+.shop-menu.open,
+.stats-menu.open {
   opacity: 1;
   pointer-events: auto;
   transform: translateX(-50%) translateY(0);
 }
 
-.shop-title {
+/* ── Panel Header ──────────────────────────────────────────── */
+.panel-title {
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -287,7 +301,8 @@ body {
   cursor: pointer;
   background: rgba(34, 197, 94, 0.82);
   color: #fff;
-  transition: background 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
+  transition: background 0.15s ease, box-shadow 0.15s ease,
+              opacity 0.15s ease, transform 0.1s ease;
   box-shadow: 0 2px 10px rgba(34, 197, 94, 0.3);
 }
 
@@ -306,6 +321,55 @@ body {
   box-shadow: none;
 }
 
+/* ── Stats Rows ────────────────────────────────────────────── */
+.stat-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 0.55rem 0;
+}
+
+.stat-section {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(150, 175, 220, 0.45);
+  margin-bottom: 0.35rem;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.18rem 0;
+}
+
+.stat-row.stat-sub {
+  padding-left: 0.9rem;
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  color: rgba(180, 200, 230, 0.6);
+  font-weight: 500;
+}
+
+.stat-row.stat-sub .stat-label {
+  font-size: 0.72rem;
+  color: rgba(150, 175, 215, 0.4);
+}
+
+.stat-value {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.stat-value.stat-green {
+  color: rgba(130, 220, 150, 0.85);
+}
+
 /* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 480px) {
   .app {
@@ -316,17 +380,11 @@ body {
     font-size: 5rem;
   }
 
-  .btn-increment,
-  .btn-decrement {
+  .btn-increment {
     width: 3rem;
     height: 3rem;
   }
 
-  .btn-decrement {
-    font-size: 1.5rem;
-  }
-
-  .shop-menu {
-    width: 250px;
-  }
+  .shop-menu  { width: 250px; }
+  .stats-menu { width: 230px; }
 }
