@@ -70,6 +70,7 @@ setInterval(() => {
   if (autoclickerLevel === 0) return;
   count += autoclickerLevel;
   render();
+  triggerBounce();
   triggerWindowFlicker();
   checkMilestone(count);
 }, 1000);
