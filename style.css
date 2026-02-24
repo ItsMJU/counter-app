@@ -43,27 +43,34 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  gap: 1.4rem;
+  background: rgba(5, 10, 25, 0.48);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 2rem;
+  padding: 2.2rem 3.5rem 2.5rem;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
 }
 
 /* ── Title ─────────────────────────────────────────────────── */
 .app-title {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
 }
 
 /* ── Counter Display ───────────────────────────────────────── */
 .counter-display {
-  font-size: 11rem;
+  font-size: 7.5rem;
   font-weight: 800;
   color: #ffffff;
   line-height: 1;
   text-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.25),
-    0 0 60px rgba(255, 255, 255, 0.15);
+    0 2px 16px rgba(0, 0, 0, 0.35),
+    0 0 40px rgba(200, 220, 255, 0.12);
   min-width: 3ch;
   text-align: center;
   user-select: none;
@@ -84,7 +91,7 @@ body {
 /* ── Controls ──────────────────────────────────────────────── */
 .controls {
   display: flex;
-  gap: 1rem;
+  gap: 0.85rem;
   align-items: center;
 }
 
@@ -92,71 +99,73 @@ body {
 .btn {
   border: none;
   border-radius: 9999px;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
 }
 
 .btn:active {
-  transform: scale(0.93);
+  transform: scale(0.91);
 }
 
 .btn-increment {
-  width: 4.5rem;
-  height: 4.5rem;
+  width: 3.7rem;
+  height: 3.7rem;
   background-color: var(--color-increment);
   color: #fff;
 }
 
 .btn-increment:hover {
   background-color: var(--color-increment-hover);
-  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+  box-shadow: 0 5px 18px rgba(34, 197, 94, 0.55);
 }
 
 .btn-decrement {
-  width: 4.5rem;
-  height: 4.5rem;
-  font-size: 2rem;
+  width: 3.7rem;
+  height: 3.7rem;
+  font-size: 1.8rem;
   background-color: var(--color-decrement);
   color: #fff;
 }
 
 .btn-decrement:hover {
   background-color: var(--color-decrement-hover);
-  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+  box-shadow: 0 5px 18px rgba(239, 68, 68, 0.55);
 }
 
 .btn-reset {
-  padding: 0 1.5rem;
-  height: 3rem;
-  font-size: 0.9rem;
-  letter-spacing: 0.05em;
+  padding: 0 1.25rem;
+  height: 2.4rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
   background-color: var(--color-reset);
   color: #fff;
 }
 
 .btn-reset:hover {
   background-color: var(--color-reset-hover);
-  box-shadow: 0 6px 20px rgba(100, 116, 139, 0.5);
+  box-shadow: 0 5px 18px rgba(100, 116, 139, 0.5);
 }
 
 /* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  .counter-display {
-    font-size: 7rem;
+  .app {
+    padding: 1.8rem 2.2rem 2rem;
   }
 
-  .btn-increment {
-    width: 4rem;
-    height: 4rem;
-    font-size: 1.25rem;
+  .counter-display {
+    font-size: 5rem;
+  }
+
+  .btn-increment,
+  .btn-decrement {
+    width: 3rem;
+    height: 3rem;
   }
 
   .btn-decrement {
-    width: 3.5rem;
-    height: 3.5rem;
-    font-size: 1.6rem;
+    font-size: 1.5rem;
   }
 }

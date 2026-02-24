@@ -12,7 +12,6 @@ function render() {
 
 function triggerBounce() {
   counterEl.classList.remove('bounce');
-  // Force reflow so the animation restarts even on back-to-back clicks
   void counterEl.offsetWidth;
   counterEl.classList.add('bounce');
 }
@@ -21,6 +20,8 @@ btnIncrement.addEventListener('click', () => {
   count += 1;
   render();
   triggerBounce();
+  triggerWindowFlicker();
+  checkMilestone(count);
 });
 
 btnDecrement.addEventListener('click', () => {
@@ -28,6 +29,7 @@ btnDecrement.addEventListener('click', () => {
     count -= 1;
     render();
     triggerBounce();
+    triggerWindowFlicker();
   }
 });
 
@@ -36,6 +38,7 @@ btnReset.addEventListener('click', () => {
     count = 0;
     render();
     triggerBounce();
+    triggerWindowFlicker();
   }
 });
 
@@ -62,6 +65,7 @@ let stars = [];
 let cityRects = [];
 let cityWindows = [];
 let frame = 0;
+let keepItUpState = null;
 
 function resize() {
   canvas.width = window.innerWidth;
@@ -88,7 +92,7 @@ function generateStars() {
     });
   }
 
-  // Milky Way river — a dense diagonal band of faint stars
+  // Milky Way river — dense diagonal band of faint stars
   for (let i = 0; i < 650; i++) {
     const t = Math.random();
     const bx = (0.22 + t * 0.56) * W;
@@ -119,14 +123,12 @@ function buildCity() {
     hasAntenna: false,
   }));
 
-  // Mark the tallest building for an antenna
   let tallest = cityRects[0];
   for (const r of cityRects) {
     if (r.h > tallest.h) tallest = r;
   }
   tallest.hasAntenna = true;
 
-  // Generate windows
   cityWindows = [];
   for (const r of cityRects) {
     const cols = Math.max(1, Math.floor((r.w - 4) / 9));
@@ -139,6 +141,9 @@ function buildCity() {
             y: r.y + 6 + row * 11,
             flicker: Math.random() < 0.03,
             phase: Math.random() * Math.PI * 2,
+            triggered: false,
+            triggeredFrame: 0,
+            triggeredDuration: 0,
           });
         }
       }
@@ -146,12 +151,88 @@ function buildCity() {
   }
 }
 
+// ── Window Flash on Button Press ─────────────────────────────────────────
+function triggerWindowFlicker() {
+  if (cityWindows.length === 0) return;
+  const idx = Math.floor(Math.random() * cityWindows.length);
+  const w = cityWindows[idx];
+  w.triggered = true;
+  w.triggeredFrame = frame;
+  w.triggeredDuration = 18 + Math.floor(Math.random() * 14);
+}
+
+// ── "Keep it up!" Milestone ──────────────────────────────────────────────
+function checkMilestone(value) {
+  if (value > 0 && value % 100 === 0) {
+    keepItUpState = {
+      startFrame: frame,
+      sparkles: Array.from({ length: 30 }, () => ({
+        x: Math.random() * 295 - 10,
+        y: (Math.random() - 0.5) * 58,
+        r: Math.random() * 2 + 0.3,
+        phase: Math.random() * Math.PI * 2,
+        speed: Math.random() * 0.1 + 0.04,
+      })),
+    };
+  }
+}
+
+function drawKeepItUp() {
+  if (!keepItUpState) return;
+  const elapsed = frame - keepItUpState.startFrame;
+  const DURATION = 180; // 3 s at 60 fps
+  if (elapsed >= DURATION) { keepItUpState = null; return; }
+
+  const progress = elapsed / DURATION;
+  const alpha = progress < 0.1  ? progress / 0.1
+              : progress > 0.8  ? (1 - progress) / 0.2
+              : 1;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(50, 185);
+  ctx.rotate(-Math.PI / 5.5); // ~-33° diagonal
+
+  const text = 'Keep it up!';
+  ctx.font = 'bold 2.6rem "Segoe UI", system-ui, sans-serif';
+  ctx.textBaseline = 'middle';
+
+  // Outer nebula glow
+  ctx.shadowColor = 'rgba(160, 210, 255, 1)';
+  ctx.shadowBlur = 38;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+  ctx.fillText(text, 0, 0);
+
+  // Mid glow
+  ctx.shadowBlur = 18;
+  ctx.fillStyle = 'rgba(220, 240, 255, 0.5)';
+  ctx.fillText(text, 0, 0);
+
+  // Sharp core
+  ctx.shadowBlur = 5;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+  ctx.fillText(text, 0, 0);
+
+  // Twinkling sparkle stars around the letters
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = 'rgba(0, 0, 0, 0)';
+  for (const sp of keepItUpState.sparkles) {
+    sp.phase += sp.speed;
+    const a = 0.3 + Math.abs(Math.sin(sp.phase)) * 0.7;
+    ctx.fillStyle = `rgba(255, 255, 210, ${a})`;
+    ctx.beginPath();
+    ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
 // ── Draw Loop ────────────────────────────────────────────────────────────
 function draw() {
   const W = canvas.width;
   const H = canvas.height;
 
-  // Sky background
   ctx.fillStyle = '#050810';
   ctx.fillRect(0, 0, W, H);
 
@@ -197,7 +278,7 @@ function draw() {
     ctx.fill();
   }
 
-  // City: warm light-pollution glow above roofline
+  // City light-pollution glow
   const glowGrad = ctx.createLinearGradient(0, H - 240, 0, H);
   glowGrad.addColorStop(0, 'rgba(255, 120, 30, 0)');
   glowGrad.addColorStop(1, 'rgba(255, 100, 20, 0.13)');
@@ -208,7 +289,6 @@ function draw() {
   ctx.fillStyle = '#060c16';
   for (const r of cityRects) {
     ctx.fillRect(r.x, r.y, r.w, r.h);
-
     if (r.hasAntenna) {
       ctx.fillRect(r.x + Math.floor(r.w / 2) - 1, r.y - 28, 2, 28);
       ctx.fillRect(r.x + Math.floor(r.w / 2) - 3, r.y - 28, 6, 3);
@@ -218,6 +298,21 @@ function draw() {
   // Lit windows
   frame++;
   for (const w of cityWindows) {
+    if (w.triggered) {
+      const elapsed = frame - w.triggeredFrame;
+      if (elapsed < w.triggeredDuration) {
+        const t = elapsed / w.triggeredDuration;
+        ctx.save();
+        ctx.shadowColor = 'rgba(255, 255, 180, 0.9)';
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = `rgba(255, 255, 200, ${1.0 - t * 0.3})`;
+        ctx.fillRect(w.x, w.y, 5, 7);
+        ctx.restore();
+        continue;
+      }
+      w.triggered = false;
+    }
+
     let alpha = 0.75;
     if (w.flicker) {
       alpha = 0.4 + Math.abs(Math.sin(frame * 0.08 + w.phase * 8)) * 0.55;
@@ -225,6 +320,9 @@ function draw() {
     ctx.fillStyle = `rgba(255, 218, 100, ${alpha})`;
     ctx.fillRect(w.x, w.y, 5, 7);
   }
+
+  // "Keep it up!" star text overlay
+  drawKeepItUp();
 
   requestAnimationFrame(draw);
 }
