@@ -1,0 +1,150 @@
+/* ── Custom Properties ─────────────────────────────────────── */
+:root {
+  --color-increment: #22c55e;
+  --color-increment-hover: #16a34a;
+  --color-decrement: #ef4444;
+  --color-decrement-hover: #dc2626;
+  --color-reset: #94a3b8;
+  --color-reset-hover: #64748b;
+  --font-main: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Layout ────────────────────────────────────────────────── */
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-main);
+  background: linear-gradient(135deg, #7c3aed 0%, #db2777 50%, #f97316 100%);
+  overflow: hidden;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* ── Title ─────────────────────────────────────────────────── */
+.app-title {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* ── Counter Display ───────────────────────────────────────── */
+.counter-display {
+  font-size: 11rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+  text-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.25),
+    0 0 60px rgba(255, 255, 255, 0.15);
+  min-width: 3ch;
+  text-align: center;
+  user-select: none;
+}
+
+/* ── Bounce Animation ──────────────────────────────────────── */
+@keyframes bounce {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.18); }
+  65%  { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+
+.counter-display.bounce {
+  animation: bounce 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* ── Controls ──────────────────────────────────────────────── */
+.controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.btn {
+  border: none;
+  border-radius: 9999px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.btn:active {
+  transform: scale(0.93);
+}
+
+.btn-increment {
+  width: 5rem;
+  height: 5rem;
+  background-color: var(--color-increment);
+  color: #fff;
+}
+
+.btn-increment:hover {
+  background-color: var(--color-increment-hover);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+}
+
+.btn-decrement {
+  width: 4.25rem;
+  height: 4.25rem;
+  font-size: 2rem;
+  background-color: var(--color-decrement);
+  color: #fff;
+}
+
+.btn-decrement:hover {
+  background-color: var(--color-decrement-hover);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+}
+
+.btn-reset {
+  padding: 0 1.5rem;
+  height: 3rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  background-color: var(--color-reset);
+  color: #fff;
+}
+
+.btn-reset:hover {
+  background-color: var(--color-reset-hover);
+  box-shadow: 0 6px 20px rgba(100, 116, 139, 0.5);
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .counter-display {
+    font-size: 7rem;
+  }
+
+  .btn-increment {
+    width: 4rem;
+    height: 4rem;
+    font-size: 1.25rem;
+  }
+
+  .btn-decrement {
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.6rem;
+  }
+}
